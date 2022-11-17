@@ -1,0 +1,134 @@
+QWidget{
+background-color: transparent;
+}
+#RightMenu {
+    background-color: rgba(73, 84, 116, 180);
+    border-radius: 10px;
+   }
+#RightMenuContainers {
+    background-color: transparent;
+}
+#RightMenuButtons {
+    background-color: transparent;
+}
+#RightMenuTop{
+    background-color: rgb(255, 255, 249);
+}
+QPushButton {
+border: 1px solid rgb(52, 59, 72);
+border-radius: 5px;
+background-color:#495474;
+color: rgb(0, 0, 0);
+font-size: 15px;
+font-weight:bold;
+text-align : center;
+}
+QPushButton:hover {
+background-color: #5d6c99;
+border: 2px solid rgb(61, 70, 86);
+}
+QPushButton:pressed {
+background-color: rgb(35, 40, 49);
+border: 2px solid rgb(43, 50, 61);
+}
+
+QLabel{
+background-color: rgba(61, 70, 86,180);
+color: rgb(0,0,0);
+font-size: 15px;
+font-weight:bold;
+padding-left: 5px;
+border-radius: 10px;
+}
+
+QCheckBox::indicator {
+    border: 3px solid #6272a4;
+	width: 15px;
+	height: 15px;
+	border-radius: 10px;
+    background: #6272a4;
+}
+QCheckBox::indicator:hover {
+    border: 3px solid rgb(119, 136, 187);
+}
+QCheckBox::indicator:checked {
+    background: 3px solid #bd93f9;
+	border: 3px solid #bd93f9;
+	background-image: url(./icons/check-solid.png);
+}
+QLineEdit {
+	background-color: #6272a4;
+	border-radius: 5px;
+	border: 2px solid #6272a4;
+	padding-left: 10px;
+	selection-color: rgb(255, 255, 255);
+	selection-background-color: rgb(255, 121, 198);
+    color: #f8f8f2;
+}
+QLineEdit:hover {
+	border: 2px solid rgb(64, 71, 88);
+}
+QLineEdit:focus {
+	border: 2px solid #ff79c6;
+}
+QComboBox
+{
+	color: rgb(255, 255, 255);
+    font-size: 15px;
+    font-weight:bold;
+	border-color:rgb(57, 65, 80);
+	border-style:solid;
+	border-width: 0.5 0.5 0.5 0.5;
+	background-color: #495474;
+	border-radius: 5px;
+	padding-left: 12px;
+}
+
+QComboBox::drop-down
+{
+	margin-right: 10px;
+	border: none;
+}
+
+QComboBox::down-arrow
+{
+	width:14px;
+	height:16px;
+	border-image:url(images/angle-down.png);
+}
+
+QComboBox QAbstractItemView
+{
+    outline: 0px;
+	color: rgb(255, 255, 255);
+    font-size: 15px;
+    font-weight:bold;
+	border-radius: 8px;
+	padding:5px;
+	background-color: rgb(52, 59, 72);
+}
+
+QComboBox QAbstractItemView::item
+{
+    border-radius: 8px;
+	height: 30px;
+}
+
+QComboBox QAbstractItemView::item:hover{
+border-radius: 8px;
+  background-color:rgb(57, 65, 80);
+  color:#ffffff;
+}
+QComboBox QAbstractItemView::item:selected
+{
+border-radius: 8px;
+    background-color:rgb(35, 40, 49);
+	color:#ffffff;
+}
+#Tip{
+background-color:transparent;
+color: rgb(0,0,0);
+font-size: 15px;
+font-weight:bold;
+border-radius: 10px;
+}
