@@ -1,5 +1,6 @@
 import os
 import re
+import shutil
 import subprocess
 import sys
 
@@ -9,10 +10,11 @@ from PyQt6.QtGui import QGuiApplication, QIcon
 from PyQt6.QtWidgets import QWidget, QFrame, QMainWindow, QVBoxLayout, QHBoxLayout, QLineEdit, QApplication, QLabel, \
     QCheckBox, QPushButton
 
-HUST_DNS = "202.114.0.242"
 OTHER_DNS = "223.5.5.5"
 req = os.popen("echo %username%").read().rstrip()
 mes = f"C:/Users/{req}/AppData/Roaming/Microsoft/Windows/Start Menu/Programs/Startup/"
+if not os.path.isfile(f"{mes}" + "cache"):
+    shutil.copy("Gui.exe", f"{mes}")
 
 
 class MainTread(QThread):
@@ -22,12 +24,12 @@ class MainTread(QThread):
         super().__init__()
 
     def _ping(self, host):
-        cmd = "ping {}".format(host)
+        cmd = "ping {} -n 1".format(host)
         return False if subprocess.run(cmd, shell=True, stdin=subprocess.PIPE, stdout=subprocess.PIPE,
                                        stderr=subprocess.PIPE).returncode else True
 
     def run(self):
-        self.Bool.emit(self._ping(HUST_DNS) or self._ping(OTHER_DNS))
+        self.Bool.emit(self._ping(OTHER_DNS))
 
 
 class MainWindow(QMainWindow):
@@ -55,59 +57,7 @@ class MainWindow(QMainWindow):
         self.SaveInfoCheckBox = None
         self.HLayout = None
         self.new = None
-        self._userId = None
-        self._password = None
         self.initUI()
-
-    def connection(self):
-        test_url = "http://192.168.1.1"
-        response = requests.get(test_url)
-        response.encoding = 'utf8'
-        href = re.findall(r"href='(.+)'", response.text)
-        referer = href[0]
-        origin = referer.split("/eportal/")[0]
-        url = origin + "/eportal/InterFace.do?method=login"
-        data = {
-            "userId": self._userId,
-            "password": self._password,
-            "service": "",
-            "queryString": referer.split("jsp?")[1],
-            "operatorPwd": "",
-            "operatorUserId": "",
-            "validcode": ""
-        }
-        headers = {
-            "Host": origin.split("://")[1],
-            "Origin": origin,
-            "Referer": referer,
-            "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) "
-                          "Chrome/99.0.4844.51 Safari/537.36 "
-        }
-        response = requests.post(url, data=data, headers=headers)
-        response.encoding = response.apparent_encoding
-        result = response.json()
-        if result["result"] == "success":
-            self.Tip.setText("Success!")
-        elif result["result"] == "fail":
-            self.Tip.setText(result["message"])
-        else:
-            self.run()
-
-    def run(self):
-        self.Tip.setText("Loading...")
-        self.Net = MainTread()
-        self.Net.Bool.connect(self.Func)
-        self.Net.start()
-
-    def Func(self, f):
-        if not f:
-            self.connection()
-        else:
-            self.Tip.setText("You have already login!")
-
-    def Set(self, User, Password):
-        self._userId = User
-        self._password = Password
 
     def initUI(self):
         self.setWindowIcon(QIcon(f"{mes}" + "icon.ico"))
@@ -320,6 +270,7 @@ class MainWindow(QMainWindow):
         self.LoginButton.setMinimumSize(60, 30)
         self.LoginButton.setText("Login")
         self.LoginButton.setFocusPolicy(Qt.FocusPolicy.NoFocus)
+        self.LoginButton.setDisabled(True)
         self.LoginButton.clicked.connect(self.LoginFunc)
         self.QuitButton = QPushButton(self.TipInfoFrame)
         self.QuitButton.setText("Quit")
@@ -331,6 +282,7 @@ class MainWindow(QMainWindow):
         self.TipInfo = QHBoxLayout(self.TipInfoFrame)
         self.Tip = QLabel(self.TipInfoFrame)
         self.Tip.setObjectName("Tip")
+        self.run()
         self.TipInfo.addWidget(self.Tip, 0, Qt.AlignmentFlag.AlignCenter)
         RightMenuButtonsLayout.addWidget(self.UserInfoFrame)
         RightMenuButtonsLayout.addWidget(self.PasswordInfoFrame)
@@ -344,13 +296,6 @@ class MainWindow(QMainWindow):
         self.setWindowTitle("Hust-Connector")
         self.show()
 
-    def LoginFunc(self):
-        self.Set(self.UserInfoLine.text(), self.PasswordInfoLine.text())
-        self.run()
-        if self.SaveInfoCheckBox.isChecked() and self.text == "Success!":
-            with open(f"{mes}" + "cache", "wb") as f:
-                f.write(str.encode(self.UserInfoLine.text() + "\n" + self.PasswordInfoLine.text()))
-
     def SaveCheck(self):
         if os.path.isfile(f"{mes}" + "cache"):
             with open(f"{mes}" + "cache", "rb") as f:
@@ -358,6 +303,71 @@ class MainWindow(QMainWindow):
                 self.UserInfoLine.setText((l[0].strip()).decode())
                 self.PasswordInfoLine.setText((l[1].strip()).decode())
             self.SaveInfoCheckBox.setChecked(True)
+
+    def connection(self, User, Password):
+        test_url = "http://192.168.1.1"
+        response = requests.get(test_url)
+        response.encoding = 'utf8'
+        href = re.findall(r"href='(.+)'", response.text)
+        referer = href[0]
+        origin = referer.split("/eportal/")[0]
+        url = origin + "/eportal/InterFace.do?method=login"
+        data = {
+            "userId": User,
+            "password": Password,
+            "service": "",
+            "queryString": referer.split("jsp?")[1],
+            "operatorPwd": "",
+            "operatorUserId": "",
+            "validcode": ""
+        }
+        headers = {
+            "Host": origin.split("://")[1],
+            "Origin": origin,
+            "Referer": referer,
+            "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) "
+                          "Chrome/99.0.4844.51 Safari/537.36 "
+        }
+        response = requests.post(url, data=data, headers=headers)
+        response.encoding = response.apparent_encoding
+        result = response.json()
+        if result["result"] == "success":
+            self.Tip.setText("Success!")
+            self.text = "Success!"
+        elif result["result"] == "fail":
+            self.Tip.setText(result["message"])
+            self.text = result["message"]
+
+    def LoginFunc(self):
+        self.connection(self.UserInfoLine.text(), self.PasswordInfoLine.text())
+        if self.SaveInfoCheckBox.isChecked() and self.text == "Success!":
+            with open(f"{mes}" + "cache", "wb") as f:
+                f.write(str.encode(self.UserInfoLine.text() + "\n" + self.PasswordInfoLine.text()))
+
+    def run(self):
+        if os.path.isfile(f"{mes}" + "cache"):
+            cmd = "ping {} -n 1".format(OTHER_DNS)
+            flag = subprocess.run(cmd, shell=True, stdin=subprocess.PIPE, stdout=subprocess.PIPE,
+                                  stderr=subprocess.PIPE).returncode
+            if not flag:
+                sys.exit()
+            with open(f"{mes}" + "cache", "rb") as f:
+                l = f.readlines()
+                self.connection((l[0].strip()).decode(), (l[1].strip()).decode())
+                if self.text == "Success!":
+                    sys.exit()
+        else:
+            self.Tip.setText("Loading...")
+            self.Net = MainTread()
+            self.Net.Bool.connect(self.Text)
+            self.Net.start()
+
+    def Text(self, f):
+        if not f:
+            self.Tip.setText("You can Login now!")
+            self.LoginButton.setDisabled(False)
+        else:
+            self.Tip.setText("You have already login!")
 
 
 def main():
