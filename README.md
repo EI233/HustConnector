@@ -1,17 +1,3 @@
-# HustNetwork
-
-## 功能
-
-无库依赖，自动认证华科校园网，并支持断线重连
-
-## 使用
-
-无需在路由器上，任何（通过通过路由器的）接入校园网的设备均可运行
-
-```bash
-python3 HustNetwork.py hust-network.conf
-```
-
-其中 hust-network.conf 中内容依次为校园网账号和密码
-
-程序需保持一直运行，推荐使用 screen 或者 systemctl 配置成 service 挂在后台
+new.py 实现Windows下的开机启动  
+Gui.py为链接主程序  
+链接参考https://github.com/ywang-wnlo/HustNetwork
