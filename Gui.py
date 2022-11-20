@@ -270,7 +270,7 @@ class MainWindow(QMainWindow):
         self.LoginButton.setMinimumSize(60, 30)
         self.LoginButton.setText("Login")
         self.LoginButton.setFocusPolicy(Qt.FocusPolicy.NoFocus)
-        self.LoginButton.setDisabled(True)
+        # self.LoginButton.setDisabled(True)
         self.LoginButton.clicked.connect(self.LoginFunc)
         self.QuitButton = QPushButton(self.TipInfoFrame)
         self.QuitButton.setText("Quit")
@@ -282,7 +282,7 @@ class MainWindow(QMainWindow):
         self.TipInfo = QHBoxLayout(self.TipInfoFrame)
         self.Tip = QLabel(self.TipInfoFrame)
         self.Tip.setObjectName("Tip")
-        self.run()
+        # self.run()
         self.TipInfo.addWidget(self.Tip, 0, Qt.AlignmentFlag.AlignCenter)
         RightMenuButtonsLayout.addWidget(self.UserInfoFrame)
         RightMenuButtonsLayout.addWidget(self.PasswordInfoFrame)
@@ -305,8 +305,18 @@ class MainWindow(QMainWindow):
             self.SaveInfoCheckBox.setChecked(True)
 
     def connection(self, User, Password):
+        cmd = "ping {} -n 1".format(OTHER_DNS)
+        flag = subprocess.run(cmd, shell=True, stdin=subprocess.PIPE, stdout=subprocess.PIPE,
+                              stderr=subprocess.PIPE).returncode
+        if not flag:
+            self.Tip.setText("可能设备已成功接入WiFi网络")
+            return
         test_url = "http://192.168.1.1"
-        response = requests.get(test_url)
+        try:
+            response = requests.get(test_url)
+        except requests.exceptions.ConnectionError:
+            self.Tip.setText("可能设备未接入网络.....")
+            return
         response.encoding = 'utf8'
         href = re.findall(r"href='(.+)'", response.text)
         referer = href[0]
